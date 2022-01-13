@@ -1,8 +1,16 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
-    "allowSyntheticDefaultImports": true
+    "target": "es2019",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedParameters": true,
+    "module": "CommonJS",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
   },
   "exclude": [
     "node_modules"

@@ -1,11 +1,14 @@
-import redis from 'redis';
+import {createClient, RedisClientType} from 'redis';
 
 export class CarService {
-    private static instance;
-    private cache;
+    private static instance: CarService;
+    private cacheClient: RedisClientType<any, any>;
 
     private constructor() {
-        this.cache = redis.createClient();
+        this.cacheClient = createClient();
+        process.nextTick(async () => {
+            await this.cacheClient.connect();
+        })
     }
 
     static getInstance() {
@@ -15,18 +18,20 @@ export class CarService {
         return CarService.instance;
     }
 
-    async getPrice(numberPlate, skipCacheForRead = true) {
-        if (!skipCacheForRead && this.cache.exists(numberPlate)) {
-            return this.cache.get(numberPlate);
+    async getPrice(numberPlate: string, skipCacheForRead = true) {
+        if (!skipCacheForRead) {
+            const price = await this.cacheClient.get(numberPlate)
+            if(price) return +price;
         }
         const price = await this.getExternalPrice(numberPlate);
 
-        this.cache.set(numberPlate, price);
+        await this.cacheClient.set(numberPlate, price);
 
         return price;
     }
 
-    private async getExternalPrice(numberPlate) {
+    private async getExternalPrice(numberPlate: string) {
+        console.log(numberPlate);
         return 500;
     }
 }

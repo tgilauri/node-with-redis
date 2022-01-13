@@ -2,8 +2,7 @@ import {config} from "dotenv";
 import express from "express";
 import {CarService} from "./CarService";
 
-const {parsed: env} = config();
-
+const {parsed: env = {}} = config();
 
 const app = express();
 const carService = CarService.getInstance();
