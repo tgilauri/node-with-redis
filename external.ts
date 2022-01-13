@@ -1,7 +1,7 @@
 import express from "express";
 
 const app = express();
-const timeout = 1_000;
+const timeout = 5_000;
 
 app.get('/price/:numberPlate', async (req, res) => {
     console.log('get price request for number plate: ', req.params['numberPlate']);

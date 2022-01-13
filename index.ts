@@ -2,11 +2,11 @@ import {config} from "dotenv";
 import express from "express";
 import {CarService} from "./CarService";
 
-const {parsed: env = {}} = config();
+config();
 
 const app = express();
 const carService = CarService.getInstance();
-const skipCache = !(env.USE_CACHE && env.USE_CACHE === 'true');
+const skipCache = !(process.env.USE_CACHE && process.env.USE_CACHE === 'true');
 
 app.get('/price/:numberPlate', async (req, res) => {
     const price = await carService.getPrice(req.params['numberPlate'], skipCache);
@@ -16,6 +16,6 @@ app.get('/price/:numberPlate', async (req, res) => {
 })
 
 
-app.listen(env.PORT, () => {
-    console.log('listen on port ', env.PORT);
+app.listen(process.env.PORT, () => {
+    console.log('listen on port ', process.env.PORT);
 })
