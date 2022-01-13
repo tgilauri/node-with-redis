@@ -2,10 +2,10 @@
   "name": "motorway-test",
   "version": "1.0.0",
   "description": "",
-  "main": "CarService.js",
+  "main": "CarService.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
     "redis": "^4.0.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.4.0"
   }
 }
