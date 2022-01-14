@@ -15,17 +15,17 @@ app.get('/price/:numberPlate', async (req, res) => {
     .send('' + price);
 })
 
-console.log('port :', process.env.port);
+console.log('port :', process.env.PORT);
 
-app.listen(process.env.PORT, () => {
-  console.log(`listen on port ${process.env.PORT}`);
-  if (process.send) {
-    console.log('process is fork');
-    process.send('ready')
-  }
+process.nextTick(() => {
+  console.log('start listen');
+
+  app.listen(process.env.PORT, () => {
+    console.log(`listen on port ${process.env.PORT}`);
+
+    if (process.send) {
+      console.log('process is fork');
+      process.send('ready')
+    }
+  });
 });
-
-if (process.send) {
-  console.log('process is fork');
-  process.send('ready')
-}

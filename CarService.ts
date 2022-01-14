@@ -8,12 +8,17 @@ export class CarService {
 
   private constructor() {
     this.cacheClient = createClient();
-    this.channelClient = createClient();
+    this.channelClient = this.cacheClient.duplicate();
+
     process.nextTick(async () => {
-      await this.cacheClient.connect();
-      console.log('cache client connected');
-      await this.channelClient.connect();
-      console.log('pub/sub client connected');
+      console.log('start clients');
+
+      await Promise.all([
+        this.cacheClient.connect(),
+        this.channelClient.connect()
+      ]);
+
+      console.log('clients connected');
     })
   }
 
