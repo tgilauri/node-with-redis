@@ -13,6 +13,6 @@ app.get('/price/:numberPlate', async (req, res) => {
 })
 
 
-app.listen(4444, () => {
-    console.log('listen on port 4444');
+app.listen(process.env.PORT, () => {
+    console.log('listen on port ', process.env.PORT);
 })

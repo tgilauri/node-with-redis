@@ -7,7 +7,7 @@ module.exports = {
     '/node_modules/',
     '/build/'
   ],
-  testMatch: ['<rootDir>/**/*.test.(ts|tsx)'],
+  testMatch: ['<rootDir>/**/*.test.(js|ts|tsx)'],
   roots: [
     '<rootDir>'
   ],
