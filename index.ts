@@ -17,9 +17,10 @@ app.get('/price/:numberPlate', async (req, res) => {
 
 console.log('port :', process.env.PORT);
 
-process.nextTick(() => {
-  console.log('start listen');
+process.nextTick(async () => {
+  await carService.initClients();
 
+  console.log('start listen');
   app.listen(process.env.PORT, () => {
     console.log(`listen on port ${process.env.PORT}`);
 

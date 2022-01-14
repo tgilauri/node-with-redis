@@ -4,22 +4,14 @@ import {createClient, RedisClientType} from 'redis';
 export class CarService {
   private static instance: CarService;
   private cacheClient: RedisClientType<any, any>;
-  private channelClient: RedisClientType<any, any>;
+  private subClient: RedisClientType<any, any>;
+  private pubClient: RedisClientType<any, any>;
+  private initialized = false
 
   private constructor() {
     this.cacheClient = createClient();
-    this.channelClient = this.cacheClient.duplicate();
-
-    process.nextTick(async () => {
-      console.log('start clients');
-
-      await Promise.all([
-        this.cacheClient.connect(),
-        this.channelClient.connect()
-      ]);
-
-      console.log('clients connected');
-    })
+    this.subClient = this.cacheClient.duplicate();
+    this.pubClient = this.cacheClient.duplicate();
   }
 
   static getInstance() {
@@ -27,6 +19,22 @@ export class CarService {
       CarService.instance = new CarService();
     }
     return CarService.instance;
+  }
+
+  public async initClients() {
+    if(this.initialized) return;
+
+    console.log('start clients');
+
+    await Promise.all([
+      this.cacheClient.connect(),
+      this.subClient.connect(),
+      this.pubClient.connect()
+    ]);
+
+    console.log('clients connected');
+
+    this.initialized = true;
   }
 
   async getPrice(numberPlate: string, skipCacheForRead = true) {
@@ -48,9 +56,9 @@ export class CarService {
     return new Promise(async (res) => {
       if (!!(await this.cacheClient.exists(`request_for_${numberPlate}`))) {
         console.log(`request indicator for plate ${numberPlate} exists.subscribe.`);
-        await this.channelClient.subscribe(`request_for_${numberPlate}`, async (message) => {
+        await this.subClient.subscribe(`request_for_${numberPlate}`, async (message) => {
           console.log(`message for request for plate ${numberPlate}. price: `, message);
-          await this.channelClient.unsubscribe(`request_for_${numberPlate}`);
+          await this.subClient.unsubscribe(`request_for_${numberPlate}`);
           console.log(`unsubscribed from channel for plate ${numberPlate}`);
           res(message);
         });
@@ -65,7 +73,7 @@ export class CarService {
         await this.cacheClient.incr(`request_${numberPlate}_external_calls`);
 
         console.log(`publish price`);
-        await this.channelClient.publish(`request_for_${numberPlate}`, '' + price);
+        await this.pubClient.publish(`request_for_${numberPlate}`, '' + price);
 
         console.log(`delete request indicator for plate ${numberPlate}`);
         await this.cacheClient.del(`request_for_${numberPlate}`);
