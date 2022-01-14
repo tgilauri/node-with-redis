@@ -36,50 +36,54 @@ describe('application', () => {
     expect(price).toEqual(9999);
   });
 
-  it('should call to external api a single time in a single node', async () => {
-    const app = await startRestService('6666');
-    applications.push(app);
+  it('should call to external api a single time in a single instance', async () => {
     const numberPlate = '2567';
 
     await Promise.all([
-      axios.get(`http://localhost:6666/price/${numberPlate}`),
+      axios.get(`http://localhost:${port}/price/${numberPlate}`),
       new Promise((res) => {
         setTimeout(async () => {
-          await axios.get(`http://localhost:6666/price/${numberPlate}`);
+          await axios.get(`http://localhost:${port}/price/${numberPlate}`);
           res('');
-        }, 2000);
+        }, 1000);
+      }),
+      new Promise((res) => {
+        setTimeout(async () => {
+          await axios.get(`http://localhost:${port}/price/${numberPlate}`);
+          res('');
+        }, 1000);
       })
     ]);
-
-    try {
-      app.kill();
-    } catch (e) {
-
-    }
 
     const apiCalls = await client.get(`request_${numberPlate}_calls`);
     const externalCalls = await client.get(`request_${numberPlate}_external_calls`);
 
     expect(apiCalls).not.toBeNull();
     expect(externalCalls).not.toBeNull();
-    expect(+apiCalls!).toEqual(2);
+    expect(+apiCalls!).toEqual(3);
     expect(+externalCalls!).toEqual(1);
   })
 
-  it('should call to external api a single time', async () => {
-    const app = await startRestService('7777');
-    applications.push(app);
-    const numberPlate = 777;
+  it('should call to external api a single time to separate instances', async () => {
+    const secondAppPort = '7777';
+    const app = await startRestService(secondAppPort);
+    const numberPlate = '1234';
 
     await Promise.all([
-      axios.get(`http://localhost:${5555}/price/${numberPlate}`),
+      axios.get(`http://localhost:${port}/price/${numberPlate}`),
       new Promise((res) => {
         setTimeout(async () => {
-          await axios.get(`http://localhost:${7777}/price/${numberPlate}`);
+          await axios.get(`http://localhost:${secondAppPort}/price/${numberPlate}`);
           res('');
-        }, 2000);
+        }, 1000);
       })
     ]);
+
+    try {
+      app.kill('SIGINT');
+    } catch (e) {
+
+    }
 
     const apiCalls = await client.get(`request_${numberPlate}_calls`);
     const externalCalls = await client.get(`request_${numberPlate}_external_calls`);
